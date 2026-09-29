@@ -3,7 +3,8 @@ const {
     GatewayIntentBits,
     REST,
     Routes,
-    SlashCommandBuilder
+    SlashCommandBuilder,
+    ActivityType
 } = require('discord.js');
 
 const {
@@ -55,6 +56,13 @@ async function entrarNaCall() {
 
 client.once('clientReady', async () => {
     console.log(`🟢 Bot online como ${client.user.tag}!`);
+
+    // 🎮 ATIVIDADE DO RISE PRESENCE
+    client.user.setActivity('Rise Presence', {
+        type: ActivityType.Playing
+    });
+
+    console.log('🎮 Rise Presence ativado!');
 
     const commands = [
         new SlashCommandBuilder()
