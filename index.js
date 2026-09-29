@@ -45,7 +45,7 @@ async function entrarNaCall() {
 
     console.log('🔊 Entrei na call!');
 
-    connection.on(VoiceConnectionStatus.Disconnected, async () => {
+    connection.on(VoiceConnectionStatus.Disconnected, () => {
         console.log('⚠️ Bot foi desconectado. Tentando voltar...');
 
         setTimeout(() => {
@@ -57,9 +57,12 @@ async function entrarNaCall() {
 client.once('clientReady', async () => {
     console.log(`🟢 Bot online como ${client.user.tag}!`);
 
-    // 🎮 ATIVIDADE DO RISE PRESENCE
-    client.user.setActivity('Rise Presence', {
-        type: ActivityType.Playing
+    // 🎮 RISE PRESENCE
+    client.user.setActivity('farmbot', {
+        type: ActivityType.Playing,
+        largeImageKey: 'farmbot',
+        largeImageText: 'farmbot',
+        startTimestamp: Date.now()
     });
 
     console.log('🎮 Rise Presence ativado!');
