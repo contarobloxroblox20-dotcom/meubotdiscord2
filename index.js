@@ -10,17 +10,23 @@ const {
     EmbedBuilder
 } = require('discord.js');
 
-const {
-    joinVoiceChannel
-} = require('@discordjs/voice');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 // ==========================================
 // CONFIGURAÇÕES
 // ==========================================
 
 const TOKEN = process.env.DISCORD_TOKEN;
-const CLIENT_ID = '1555260264763490366';
+
+// CLIENT ID CORRETO DO RISE/FARMBOT
+const CLIENT_ID = '1553489414850613358';
+
+// ID DA CALL
 const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
+
+// ==========================================
+// CLIENT
+// ==========================================
 
 const client = new Client({
     intents: [
@@ -103,7 +109,7 @@ function criarEmbed() {
         });
 }
 
-function criarBotaoNicks() {
+function criarBotao() {
     return new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId('gerar_nicks')
@@ -120,13 +126,11 @@ function criarBotaoNicks() {
 async function entrarNaCall() {
     try {
         if (!VOICE_CHANNEL_ID) {
-            console.log('❌ VOICE_CHANNEL_ID não está configurado.');
+            console.log('❌ VOICE_CHANNEL_ID não configurado.');
             return;
         }
 
-        const canal = await client.channels.fetch(
-            VOICE_CHANNEL_ID
-        );
+        const canal = await client.channels.fetch(VOICE_CHANNEL_ID);
 
         if (!canal) {
             console.log('❌ Canal de voz não encontrado.');
@@ -142,6 +146,7 @@ async function entrarNaCall() {
         });
 
         console.log('🎙️ Bot entrou na call!');
+
     } catch (error) {
         console.error('❌ Erro ao entrar na call:', error);
     }
@@ -156,7 +161,7 @@ client.once('clientReady', async () => {
     console.log(`🟢 Bot online como ${client.user.tag}`);
 
     // ======================================
-    // COMANDOS
+    // REGISTRAR /PING E /NICKS
     // ======================================
 
     const commands = [
@@ -164,13 +169,11 @@ client.once('clientReady', async () => {
         new SlashCommandBuilder()
             .setName('ping')
             .setDescription('Responde com Pong!')
-
             .toJSON(),
 
         new SlashCommandBuilder()
             .setName('nicks')
             .setDescription('Gera uma lista de nicks aleatórios')
-
             .toJSON()
     ];
 
@@ -191,13 +194,13 @@ client.once('clientReady', async () => {
 
     } catch (error) {
 
-        console.error(
-            '❌ Erro ao registrar comandos:',
-            error
-        );
+        console.error('❌ Erro ao registrar comandos:', error);
     }
 
-    // Entrar na call
+    // ======================================
+    // ENTRAR NA CALL
+    // ======================================
+
     await entrarNaCall();
 });
 
@@ -208,7 +211,7 @@ client.once('clientReady', async () => {
 client.on('interactionCreate', async interaction => {
 
     // ======================================
-    // COMANDOS SLASH
+    // COMANDOS
     // ======================================
 
     if (interaction.isChatInputCommand()) {
@@ -229,7 +232,7 @@ client.on('interactionCreate', async interaction => {
                     criarEmbed()
                 ],
                 components: [
-                    criarBotaoNicks()
+                    criarBotao()
                 ]
             });
 
@@ -250,7 +253,7 @@ client.on('interactionCreate', async interaction => {
                     criarEmbed()
                 ],
                 components: [
-                    criarBotaoNicks()
+                    criarBotao()
                 ]
             });
 
@@ -260,21 +263,22 @@ client.on('interactionCreate', async interaction => {
 });
 
 // ==========================================
-// SE O BOT FOR REMOVIDO DA CALL,
-// TENTA ENTRAR NOVAMENTE
+// SE SAIR DA CALL, TENTA VOLTAR
 // ==========================================
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
 
-    if (oldState.member?.id !== client.user?.id) {
+    if (!client.user) return;
+
+    if (oldState.member?.id !== client.user.id) {
         return;
     }
 
-    if (
-        oldState.channelId &&
-        !newState.channelId
-    ) {
-        console.log('⚠️ Bot saiu da call. Tentando entrar novamente...');
+    if (oldState.channelId && !newState.channelId) {
+
+        console.log(
+            '⚠️ Bot saiu da call. Tentando entrar novamente...'
+        );
 
         setTimeout(() => {
             entrarNaCall();
