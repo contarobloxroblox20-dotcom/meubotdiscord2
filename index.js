@@ -18,8 +18,11 @@ const { joinVoiceChannel } = require('@discordjs/voice');
 
 const TOKEN = process.env.DISCORD_TOKEN;
 
-// CLIENT ID CORRETO DO RISE/FARMBOT
+// ID DO FARM BOT
 const CLIENT_ID = '1553489414850613358';
+
+// ID DO SEU SERVIDOR
+const GUILD_ID = '1542480464999227502';
 
 // ID DA CALL
 const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
@@ -160,10 +163,6 @@ client.once('clientReady', async () => {
 
     console.log(`🟢 Bot online como ${client.user.tag}`);
 
-    // ======================================
-    // REGISTRAR /PING E /NICKS
-    // ======================================
-
     const commands = [
 
         new SlashCommandBuilder()
@@ -184,22 +183,24 @@ client.once('clientReady', async () => {
     try {
 
         await rest.put(
-            Routes.applicationCommands(CLIENT_ID),
+            Routes.applicationGuildCommands(
+                CLIENT_ID,
+                GUILD_ID
+            ),
             {
                 body: commands
             }
         );
 
-        console.log('✅ Comandos /ping e /nicks registrados!');
+        console.log('✅ Comandos /ping e /nicks registrados no servidor!');
 
     } catch (error) {
 
-        console.error('❌ Erro ao registrar comandos:', error);
+        console.error(
+            '❌ Erro ao registrar comandos:',
+            error
+        );
     }
-
-    // ======================================
-    // ENTRAR NA CALL
-    // ======================================
 
     await entrarNaCall();
 });
@@ -210,13 +211,9 @@ client.once('clientReady', async () => {
 
 client.on('interactionCreate', async interaction => {
 
-    // ======================================
-    // COMANDOS
-    // ======================================
-
+    // /ping
     if (interaction.isChatInputCommand()) {
 
-        // /ping
         if (interaction.commandName === 'ping') {
 
             await interaction.reply('Pong! 🏓');
@@ -263,7 +260,7 @@ client.on('interactionCreate', async interaction => {
 });
 
 // ==========================================
-// SE SAIR DA CALL, TENTA VOLTAR
+// SE O BOT SAIR DA CALL
 // ==========================================
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
